@@ -1,24 +1,22 @@
 from Tkinter import *
 import requests
 from bs4 import BeautifulSoup
-import os
-
-
+import urllib
+from tkMessageBox import showinfo
+import time
 
 root = Tk()
-
-#Window Config
-
+root.withdraw()
 root.title("Z-Library Python App")
 root.iconbitmap("favicon.ico")
 root.option_add('*font', ('Helvetica', 12, 'bold'))
 
+
 width = root.winfo_screenwidth()
 height = root.winfo_screenheight()
 
+bookArr=[]
 downArr=[]
-
-
 
 def retrieve_input():
 	inputValue=textBox.get("1.0","end-1c")
@@ -44,19 +42,44 @@ def down_input():
 	inputValue2=textBox2.get("1.0","end-1c")
 	T2.delete('1.0', END)
 	noInputLabel.config(text="")
-	down_links = doc.find_all(class_='ddownload')
-	for a in doc.find_all('a',href=True,class_='ddownload'):	
-		downArr.append("https://b-ok.org"+str(a['href']))
+	book_links = doc.find_all(class_='ddownload')
+	for a in book_links:	
+		bookArr.append("https://b-ok.org"+str(a['href']))
+
 	try:
-		T2.insert(END, downArr[int(inputValue2)-1])
+		book=bookArr[int(inputValue2)-1]
+		T2.insert(END, book)
+		response2 = requests.get(book)
+		doc2 = BeautifulSoup(response2.text, 'html.parser')
+		for a in doc2.find_all('a',href=True,class_='dlButton'):	
+			T2.insert(END,"\n")	
+			T2.insert(END,"https://b-ok.org"+str(a['href'])) 
+		
+		
 	except:
 		noInputLabel.config(text="Please Enter Something in Search First")
 
 	if inputValue2=="":
 		noInputLabel.config(text="Please Enter Something First")
+
+
+showinfo("Status","Checking for Internet Connectivity ...")
+
+try :
+	chk_link = "https://b-ok.org"
+	urllib.urlopen(chk_link)
+	showinfo("Status", "Successfully Connected to B-ok.org")
+	root.deiconify()
+
+except :
+	showinfo("Status", "Problem Connecting to B-ok.org")
+
+	root.destroy()  
+
+
+
+
 	
-
-
 w = Label(root, text="Book Grabber using Tkinter and BeautifulSoup")
 w.config(font=("Courier", 25,"bold"))
 w.pack(side=TOP)
@@ -87,8 +110,5 @@ S.pack(side=RIGHT, fill=Y)
 T.pack(side=LEFT, fill=Y)
 S.config(command=T.yview)
 T.config(yscrollcommand=S.set)
-
-
-
 
 mainloop(  )    	
