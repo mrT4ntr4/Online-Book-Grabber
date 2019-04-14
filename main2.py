@@ -24,7 +24,29 @@ downArr=[]
 md5=[]
 merged=[]
 titleArr=[]
+randomArr=[]
 #http://gen.lib.rus.ec/search.php?req=web&lg_topic=libgen&open=0&view=simple&res=100&phrase=1&column=def
+
+
+
+def search(text_widget, keyword1,keyword2, tag):
+	pos = '1.0'
+	while True:
+		kb = T.search(keyword1, pos, END)
+		mb = T.search(keyword2, pos, END)
+
+		if not kb:
+			break
+		pos = '{}+{}c'.format(kb, len(keyword1))
+
+		T.tag_add(tag, kb, pos)
+		if not mb:
+			break
+		pos = '{}+{}c'.format(mb, len(keyword2))
+		T.tag_add(tag, mb, pos)
+
+
+
 
 
 def retrieve_input():
@@ -34,20 +56,26 @@ def retrieve_input():
 	doc = BeautifulSoup(response.text, 'html.parser')
 	
 	table_rows = doc.find_all('tr')
+
 	x=1
 	for tr in table_rows:
 		td = tr.find_all('td', {"width" : "500"})
 		row = [i.text for i in td]
 		content = ", ".join(row)
+
+		randomArr.append(tr.find_all('td'))
+
 		if len(row) != 0:
-			T.insert(END, "\n"+str(x)+"  => "+content)
+			T.insert(END, "\n"+str(x)+"  => "+content+"          "+randomArr[x+2][7].text + "          " +randomArr[x+2][8].text + "\n")
+ 			search(T, 'Kb','Mb', 'failed')
+ 			search(T, 'pdf','epub', 'passed')
 			titleArr.append(row)
 			x=x+1
 		links = tr.findAll('a', href=re.compile("^book"))
 		
 		for a in links:	
 			bookArr.append("http://gen.lib.rus.ec/"+str(a['href']))
-				
+
 #  \=(.*)$ 
 	for x in bookArr:
 		md5.append(re.findall(r'\=(.*)$', x))
@@ -135,5 +163,7 @@ S.pack(side=RIGHT, fill=Y)
 T.pack(side=LEFT, fill=Y)
 S.config(command=T.yview)
 T.config(yscrollcommand=S.set)
+T.tag_config('failed', foreground='red')
+T.tag_config('passed', foreground='yellow')
 
 mainloop(  )    	
