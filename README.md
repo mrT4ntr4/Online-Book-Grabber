@@ -33,8 +33,8 @@ Following are some of its screenshots :
 Some Console Based Output  
 But Handy and more importantly Neat !!    
 
-![search ss](search.png)  
+![search ss](search.PNG)  
   
 Also Previews you the Book Cover Page you have selected to download
   
-![Downloading ss](down.png)
+![Downloading ss](down.PNG)
